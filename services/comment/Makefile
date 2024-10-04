@@ -5,7 +5,7 @@ MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 .PHONY: build
 build:
 
-	CGO_ENABLED=0 GOOS=linux go build -o comment-srv *.go
+	CGO_ENABLED=0 GOOS=linux go build -o comment-service *.go
 
 .PHONY: test
 test:
@@ -13,8 +13,8 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t scg130/comment:latest
+	docker build . -t scg130/kanshu-comment:latest
 
 .PHONY: push
 push:
-	docker push scg130/comment
+	docker push scg130/kanshu-comment

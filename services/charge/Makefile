@@ -2,15 +2,10 @@
 GOPATH:=$(shell go env GOPATH)
 MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 
-
-.PHONY: proto
-proto:
-	protoc -I=${GOPATH}/src  --proto_path=../../ --micro_out=${MODIFY}:. --gofast_out=${MODIFY}:.  proto/charge/charge.proto
-
 .PHONY: build
-build: proto
+build:
 
-	CGO_ENABLED=0 GOOS=linux go build -o charge-srv *.go
+	CGO_ENABLED=0 GOOS=linux go build -o charge-service *.go
 
 .PHONY: test
 test:
@@ -18,8 +13,8 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t scg130/charge:latest
+	docker build . -t scg130/kanshu-charge:latest
 
 .PHONY: push
 push:
-	docker push scg130/charge
+	docker push scg130/kanshu-charge

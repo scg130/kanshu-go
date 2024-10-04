@@ -1,3 +1,3 @@
 FROM scg130/alpine
-ADD charge-srv /charge-srv
-ENTRYPOINT [ "/charge-srv" ]
+ADD charge-service /charge-service
+ENTRYPOINT [ "/charge-service" ]

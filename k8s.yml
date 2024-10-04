@@ -1,0 +1,495 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-srv
+  namespace: default
+  labels:
+    app: admin-srv
+spec:
+  selector:
+    matchLabels:
+      app: admin-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: admin-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-admin
+          imagePullPolicy: IfNotPresent
+          name: admin-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-srv-svc
+  namespace: default
+  labels:
+    app: admin-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: admin-srv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet-srv
+  namespace: default
+  labels:
+    app: wallet-srv
+spec:
+  selector:
+    matchLabels:
+      app: wallet-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: wallet-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-wallet
+          imagePullPolicy: IfNotPresent
+          name: wallet-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wallet-srv-svc
+  namespace: default
+  labels:
+    app: wallet-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: wallet-srv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: charge-srv
+  namespace: default
+  labels:
+    app: charge-srv
+spec:
+  selector:
+    matchLabels:
+      app: charge-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: charge-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-charge
+          imagePullPolicy: IfNotPresent
+          name: charge-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: charge-srv-svc
+  namespace: default
+  labels:
+    app: charge-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: charge-srv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novel-srv
+  namespace: default
+  labels:
+    app: novel-srv
+spec:
+  selector:
+    matchLabels:
+      app: novel-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: novel-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-novel
+          imagePullPolicy: IfNotPresent
+          name: novel-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: novel-srv-svc
+  namespace: default
+  labels:
+    app: novel-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: novel-srv
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-srv
+  namespace: default
+  labels:
+    app: user-srv
+spec:
+  selector:
+    matchLabels:
+      app: user-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: user-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-user
+          imagePullPolicy: IfNotPresent
+          name: user-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-srv-svc
+  namespace: default
+  labels:
+    app: user-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: user-srv
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comment-srv
+  namespace: default
+  labels:
+    app: comment-srv
+spec:
+  selector:
+    matchLabels:
+      app: comment-srv
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: comment-srv
+    spec:
+      containers:
+        - image: scg130/kanshu-comment
+          imagePullPolicy: IfNotPresent
+          name: comment-srv
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 3
+          # env:
+          #   - name: ETCD_HOST
+          #     value: "etcd-svc"
+          #   - name: "TRACER_HOST"
+          #     value: "trace-svc"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comment-srv-svc
+  namespace: default
+  labels:
+    app: comment-srv
+spec:
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: comment-srv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-runapp
+  namespace: default
+  labels:
+    app: micro-runapp
+spec:
+  selector:
+    matchLabels:
+      app: micro-runapp
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: micro-runapp
+    spec:
+      containers:
+        - image: scg130/kanshu-runapp
+          imagePullPolicy: IfNotPresent
+          name: micro-runapp
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 81
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+          # env:
+          #  - name: ETCD_HOST
+          #    value: "etcd-svc"
+          #  - name: "TRACER_HOST"
+          #    value: "trace-svc"
+          #  - name: "TRACER_PORT"
+          #    value: "5775"
+          envFrom:
+            - configMapRef:
+                name: novel-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-runapp-svc
+  namespace: default
+  labels:
+    app: micro-runapp
+spec:
+  type: NodePort
+  ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+      nodePort: 30002
+    - name: api2
+      port: 81
+      protocol: TCP
+      targetPort: 81
+      nodePort: 81
+  selector:
+    app: micro-runapp

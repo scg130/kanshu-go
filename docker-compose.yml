@@ -1,0 +1,247 @@
+version: "3.5"
+#ip=`ifconfig | grep 192 | grep -v grep | awk '{print $2}'`
+#TRACER_HOST = ip
+#TRACER_PORT = 6831
+services:
+#  docker run -d --name etcd -e ALLOW_NONE_AUTHENTICATION=yes -e ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379 -p 32379:2379  -p 32380:2380 bitnami/etcd
+  etcd:
+    container_name: etcd
+    image: "bitnami/etcd:latest"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.2
+  
+  web:
+    container_name: etcdv3-browser
+    image: rustyx/etcdv3-browser
+    environment:
+      - ETCD=etcd:2379
+      - EDITABLE=1
+    ports:
+      - 8000:8081
+    restart: always
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.3
+
+  e3w:
+    container_name: e3w
+    hostname: e3w
+    image: soyking/e3w:latest
+    ports:
+      - "2300:8080"
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.4
+
+  jaeger:
+    container_name: jaeger
+    image: scg130/jaeger
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+      - "14250:14250"
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.5
+
+  #http://192.168.1.130:7777/hystrix   http://192.168.1.130:81/hystrix.stream  防火墙 81 7777端口打开
+  hystrix:
+    container_name: hystrix
+    image: scg130/hystrix
+    ports:
+      - 7777:9002
+    restart: always
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.6
+
+  #  micro-api micro-web 与micro v2 不兼容  需重新构建
+  micro-api:
+    container_name: micro-api
+    image: scg130/micro
+    ports:
+      - "8088:8080"
+    command: --registry=etcd --registry_address=172.22.0.2:2379 --api_namespace=go.micro.api api --handler=api
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.7
+
+  micro-web:
+    container_name: micro-web
+    image: scg130/micro
+    ports:
+      - "8082:8082"
+    command: --registry=etcd --registry_address=172.22.0.2:2379 --web_namespace=go.micro.web --client=grpc --enable_stats web
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.8
+  # docker run -itd --name mysql-test -p "3306":"3306" -e MYSQL_ROOT_PASSWORD=123456 mysql
+  #  mysql:
+  #    container_name: mysql
+  #    image: mysql
+  #    environment:
+  #      - MYSQL_ROOT_PASSWORD=123456
+  #    ports:
+  #      - ""3306":"3306""
+  #    networks:
+  #      hx_net:
+  #        ipv4_address: 172.22.0.9
+
+  kanshu-user:
+    container_name: kanshu-user-srv
+    image: scg130/kanshu-user
+    command: /user-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.10
+
+  kanshu-novel:
+    container_name: kanshu-novel-srv
+    image: scg130/kanshu-novel
+    command: /novel-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.11
+
+  kanshu-runapp:
+    container_name: kanshu-runapp
+    image: scg130/kanshu-runapp
+    command: /micro/runapp
+    ports:
+      - 80:8080
+      - 81:81
+    environment:
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      PAYPAL_CLIENT_ID: "AUKksEwIifzBH-AvcR0O-aegcC_N3xUWoctlZmrUjO6nWGNpTgZqJJ7ZoGE3Ngy3HnlRZgkWt0ibXm4N"
+      PAYPAL_SECRET: "EPg-JoN-qXeIi6oVyjZBI31lGOB_nXmB9N1DYgMMyiRiQySo23VKS-2Gz2qr2EzbrAnTvTTsG2RYSr_i"
+      PAYPAL_RETURN_URL: "http://www.556wan.cn/charge/callback/USD"
+      ALIPAY_APPID: "2019052465357270"
+      ALIPAY_RSA_PRIVATE_KEY: "MIIEowIBAAKCAQEA0k8yjiMl8hjwq+McVAWL1LXZD1JqI7fM5tKHijD9f3Wy4FeYZs7gAFmy85rbSnEUID7oWsC9nii29T07AIiHG67rY6vKzlEnynxCwkXFA3OITj4eMnWZlQiGdV42kBQIXwuvl4LReBHCBE1hJjSgdeYGpEuyzhKP7APNM4pMpIC88VCXsM27bE4LikXyYj5YXiJflyXshYnaKyjFprF8LdZZxM/sxHsIdRrvavoYttoUTjvZollXFE4sDbz+B30Bds5iQG15yMJdNtkDtSauhgwxhcRuk8pW/dR1AUTzWGBT4HwkBKtphSHfK12aqG4LHNt6qfx0Pb8Eia83+KBlHwIDAQABAoIBAQCR7hhzXlo/MiUV8GJAvxR3BbPXGOXDYQ9R/zXDoxjTb7UuTDnY5KW0OIme1Y5iijJf6abLCkDI1RGW++TMCvBNOkPlhlgUb2W/8BdWvJjnOyyStjG367glHKRIHpaXxP7GDNLLvB9jRFcvKw5FN3E8Pd/P8yLgMSsipsSlhcqGvfcAiIF3iOPke0J1JTdAYUq0JkwoZmGZxSuqFpayo7/7bFm2J7npoDtgLyKo/umAYRB4Occ5tkOyu9QV+F3xkAB2IvpiLflof7PirAL4hADG0DNvuWyGVfaAt1NKJZ2XR/dWUIaBRvXZUpPU7GuRa6q5fTTtDtMA+cqTfa2ocFD5AoGBAPmDw7sPpFeuxjTXFBjPLGbbKdah8hkgOBnGv7JaTB1kpnUfJ6yGdlk9y97qdK031qLSep6sG9WI/6Wu6LHkhXnGoIXaIjHHBa/880FG2QwWKRUJsDdGxqrqjDsPdAzwVK5E6FdBF/ovwgNG7IaGt+yTkRrjZiVQsRD+Carf6yPjAoGBANfGkO6TeAOTYcc3d22JOgqn7DL4K/j/8Ic3yMQp6bidQ5zHSnPP04iXBhcu+DDQHS6b/k1HA8SV4x2c4V6Yk/p45TLPno9vuZQLH3JX1hGRw/H0WQG3HaRNhotlClyJJjV5CSQ4BkInyk5AjLSONPBoVgTnRIGUwHhK2C6GxRaVAoGAE0WwKpSstvES8iXisX/fCBrJgoCDuJkafDMzv0zmMCcEDGvZnqPMJFx3kMI/PNnhRDZJrlPQ2o94X43A/2yNOriy0WPl3D5pHAzHpTUZsqtLhQp4h+x5j94J8s3gwtcVU1iTMZofhf2GWMZzonhpYGaNgKwryZoP8yYMDRy6hs0CgYBVAqo/FGKIJhyzvCqVQSdY42evfQ71/v/ohhXXExw929ezgODYV9zjR3zizWKC+LtGjbbXA098uADOvewctMg4OkEyj5HMuRvIM8mj5u8z5NXqEXavslE/VjvX12sJog8nqhPr7RaqIbsWsV++EvjQborVS7g1xUE/I12glwA3MQKBgDunVnRoPO38lbQo65TRd79nXQkH09le5uAM/Htno2MXa4nY1o6ductVt8paoaTk++QpDRZfjCOLpSxrfv5l2dQ/OlHJSKbYLDTkulscAoqDTzhhf+B0MNWxJ3Eu79/0Ewv/pEkV4HIlua1BCWR6H9xliB8pSjTwrTCHzxs/aaw6"
+      ALIPAY_RSA_PUBLIC_KEY: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvK+7eqJMihFAzhtO+p635MQW2/En+uLcmKuqUJ00B/1Q+TZwzn8WKNY+HDTRHj9KlqSgh5tpgZVNSCXGpgXWYmTklmwQXcSQ5v4Y14o2nG0CQz3mZPI2Eu69aELp7Xtxb//I5h0H91RF8pvnh7oQe1wZAq/X036LIXdk7pjxU4yhBa5hK+T+OwnPIc3oNOIz9vubJwkavYaG7QyCxSjQi/LhZXLqGYCLCiuUUshVzB0RZy3vdUYDP6Y5Epvu9elmILfgdEaqBpTDGBOz3gFAMR/Ecu3AmQum20A/yPNrR9P2eETucIX3zmz4XaF+ZN+KhiZdos5H7jc+rMIuDGQNNwIDAQAB"
+      JWT_SECRET: "9CvsyDGtiBzYB7SgmnDKZcmYtKFkUdEL"
+      ADMIN_JWT_SECRET: "9CvsyDGtiBAYB7SgmSDKZcmYtKFkUdEL"
+      PAYPAL_ENV: local
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.12
+
+  kanshu-admin:
+    container_name: kanshu-admin-srv
+    image: scg130/kanshu-admin
+    command: /admin-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_ADMIN_DB: admin
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.13
+
+  kanshu-charge:
+    container_name: kanshu-charge-srv
+    image: scg130/kanshu-charge
+    command: /charge-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.14
+
+  kanshu-wallet:
+    container_name: kanshu-wallet-srv
+    image: scg130/kanshu-wallet
+    command: /wallet-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.15
+
+  kanshu-comment:
+    container_name: kanshu-comment-srv
+    image: scg130/kanshu-comment
+    command: /comment-service
+    environment:
+      MYSQL_HOST: ${IP}
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWD: smd013012
+      MYSQL_NOVEL_DB: novel
+      MYSQL_LOG: "true"
+      ETCD_HOST: ${IP}
+      TRACER_HOST: ${TRACER_HOST}
+      TRACER_PORT: ${TRACER_PORT}
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.16
+
+networks:
+  hx_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16

@@ -1,3 +1,3 @@
 FROM scg130/alpine
-ADD comment-srv /comment-srv
-ENTRYPOINT [ "/comment-srv" ]
+ADD comment-service /comment-service
+ENTRYPOINT [ "/comment-service" ]

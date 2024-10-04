@@ -2,15 +2,9 @@
 GOPATH:=$(shell go env GOPATH)
 MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 
-.PHONY: proto
-proto:
-    
-	protoc -I=${GOPATH}/src  --proto_path=../../ --micro_out=${MODIFY}:. --gofast_out=${MODIFY}:.  proto/novel/novel.proto
-
-    
 
 .PHONY: build
-build: proto
+build:
 
 	CGO_ENABLED=0 GOOS=linux go build -o novel-service *.go
 
@@ -20,8 +14,8 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t scg130/novel:latest
+	docker build . -t scg130/kanshu-novel:latest
 
 .PHONY: push
 push:
-	docker push scg130/novel
+	docker push scg130/kanshu-novel

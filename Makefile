@@ -16,6 +16,7 @@ proto:
 	cp -rf  proto/admin/*.go services/admin/proto/admin
 	protoc -I=${GOPATH}/src  --proto_path=. --micro_out=${MODIFY}:. --gofast_out=${MODIFY}:.  proto/comment/*.proto
 	cp -rf  proto/comment/*.go services/comment/proto/comment
+
 #.PHONY: api
 #api:
 #	micro --registry=etcd --registry_address=192.168.18.14:2379  api >> /dev/null 2>&1 &
@@ -40,8 +41,8 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t scg130/kanshu:latest
+	docker build . -t scg130/kanshu-runapp:latest
 
 .PHONY: push
 push:
-	docker push scg130/kanshu
+	docker push scg130/kanshu-runapp
