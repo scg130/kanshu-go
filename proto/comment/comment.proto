@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package go.micro.service.comment;
+
+service CommentSrv {
+	rpc AddComment(AddCommentRequest) returns (CommonResponse) {}
+	rpc GetComments(CommentsRequest) returns (CommentResponse) {}
+	rpc DianZan(DianZanRequest) returns (CommentResponse) {}
+}
+
+message DianZanRequest {
+	int32 user_id = 1;
+	int32 comment_id =2;
+}
+
+message CommentsRequest {
+	int32 novel_id=1;
+	int32 page = 2;
+	int32 size = 3;
+}
+
+message CommonResponse {
+	string msg = 1;
+	int32 code = 2;
+}
+
+message AddCommentRequest {
+	string content = 1;
+	int32 user_id = 2;
+	int32 novel_id = 3;
+}
+
+message CommentResponse {
+	int32 code = 1;
+	string msg = 2;
+	repeated Comment comments = 3;
+	int32  total = 4;
+}
+
+message Comment {
+	string content = 1;
+	string avatar = 2;
+	string username = 3;
+	string  created_at = 4;
+	int32  id = 5;
+	int32 goodsNum = 6;
+}

@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+package go.micro.service.adminUser;
+
+
+service AdminUser {
+	rpc Login(LoginRequest) returns (LoginResponse) {}
+	rpc Reg(RegRequest) returns (RegResponse) {}
+	rpc UserList(UserListReq) returns (UserListRep){}
+	rpc UserEdit(EditRequest) returns (EditResponse){}
+	rpc UserDel(DelRequest) returns (DelResponse){}
+
+	rpc MenuList(MenuReq) returns (MenuListRep){}
+	rpc MenuShowTree(MenuReq) returns (MenuTreeRep){}
+	rpc MenuTree(MenuReq) returns (MenuTreeRep){}
+	rpc MenuAdd(MenuAddReq) returns (MenuRep){}
+	rpc MenuEdit(MenuEditReq) returns (MenuRep){}
+	rpc MenuDel(MenuDelReq) returns (MenuRep){}
+	rpc MenuListByIds(IdsReq) returns (MenuListRep){}
+
+	rpc RoleList(RoleReq) returns (RoleListRep){}
+	rpc RoleAdd(RoleAddReq) returns (RoleRep){}
+	rpc RoleEdit(RoleEditReq) returns (RoleRep){}
+	rpc RoleDel(RoleDelReq) returns (RoleRep){}
+	rpc FindMenuIdsByRoleIds(IdsReq) returns (MenuIdsRep){}
+}
+
+message IdsReq {
+	repeated int64 ids = 1;
+}
+
+message MenuIdsRep {
+	int32 state = 1;
+	string msg = 2;
+	repeated int64 ids = 3;
+}
+
+message RoleRep {
+	int32 state = 1;
+	string msg = 2;
+}
+
+message MenuRep {
+	int32 state = 1;
+	string msg = 2;
+}
+
+message MenuTreeRep {
+	int32 state = 1;
+	string msg = 2;
+	repeated Tree tree = 3;
+}
+
+message Tree {
+	int64 id = 1;
+	string label = 2;
+	string name = 3;
+	repeated Tree children = 4;
+}
+
+message MenuEditReq {
+	string name = 1;
+	string path = 2;
+	string api = 3;
+	string icon = 4;
+	int32 show = 5;
+	int64  pid = 6;
+	int32  state = 7;
+	int64  id = 8;
+}
+
+message RoleDelReq {
+	int64 id = 1;
+}
+
+message MenuDelReq {
+	int64 id = 1;
+}
+
+message RoleEditReq {
+	int64 id = 1;
+	string name = 2;
+	repeated int64 menu_ids = 3;
+}
+
+message RoleAddReq {
+	string name = 1;
+	repeated int64 menu_ids = 2;
+}
+
+message MenuAddReq {
+	string name = 1;
+	string path = 2;
+	string api = 3;
+	string icon = 4;
+	int32 show = 5;
+	int64  pid = 6;
+	int32  state = 7;
+}
+
+message MenuReq {
+	string name = 1;
+	Pagnation pagnation = 2;
+}
+
+message Pagnation {
+	int64 page = 1;
+	int64 page_size = 2;
+	int64 total = 3;
+}
+
+message RoleReq {
+	string name = 1;
+}
+
+message UserListReq {
+	string user_name = 1;
+}
+
+message UserListRep {
+	int32 state = 1;
+	string msg = 2;
+	repeated User users = 3;
+}
+
+message User {
+	int32 id = 1;
+	string user_name = 2;
+	string email = 3;
+	int64 phone = 4;
+	int32 state = 5;
+	string create_time = 6;
+	repeated int64 role_ids = 7;
+}
+
+message RoleListRep {
+	int32 state = 1;
+	string msg = 2;
+	repeated Role role = 3;
+}
+
+message Role {
+	int64 id = 1;
+	string name = 2;
+	repeated int64 menu_ids = 3;
+}
+
+message MenuListRep {
+	int32 state = 1;
+	string msg = 2;
+	Pagnation pagnation = 3;
+	repeated Menu menu = 4;
+}
+
+message Menu {
+	string name = 1;
+	string path = 2;
+	string api = 3;
+	string icon = 4;
+	int32 show = 5;
+	int64  id = 6;
+	int64  pid = 7;
+	string pid_name = 8;
+	int32  state = 9;
+}
+
+message DelRequest {
+	int32 id = 1;
+}
+
+message DelResponse {
+	int32 state = 1;
+	string msg = 2;
+}
+
+message EditResponse {
+	int32 state = 1;
+	string msg = 2;
+}
+
+message EditRequest {
+	int32 id = 1;
+	string username = 2;
+	string password = 3;
+	string email = 4;
+	int64 phone = 5;
+	int32 state = 6;
+	repeated int64 role_ids = 7;
+}
+
+message RegRequest {
+	string username = 1;
+	string password = 2;
+	string email = 3;
+	int64 phone = 4;
+	int32 state = 5;
+}
+
+message RegResponse {
+	int32 state = 1;
+	string msg = 2;
+}
+
+message LoginRequest {
+	string user_name = 1;
+	string password  = 2;
+}
+
+message LoginResponse {
+	int32 state = 1;
+	string msg = 2;
+	AdminUserInfo data = 3;
+}
+
+message AdminUserInfo {
+	int32 id = 1;
+	string name = 2;
+	repeated int64 role_ids = 3;
+}
+
+message Message {
+	string say = 1;
+}

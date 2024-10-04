@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package go.micro.srv.charge;
+
+service Charge {
+	rpc Create(ChargeReq) returns (ChargeResponse) {}
+	rpc ChargeSuccess(ChargeReq) returns(ChargeResponse) {}
+	rpc QueryOrder(QueryReq) returns (QueryRsp) {}
+	rpc QueryOrderByThirdOrderId(ChargeReq) returns(ChargeResponse) {}
+}
+
+enum StateType {
+	STATE_NORMAL = 0;
+	STATE_PAY_SUCCESS = 1;
+	STATE_PAYING = 2;
+	STATE_REFUND = 3;
+}
+
+message ChargeReq {
+	int64 uid = 1;
+	int64 amount = 2;
+	string channel = 3;
+	string subject = 4;
+	int64  subjectId = 8;
+	StateType state = 5;
+	string third_order_no = 6;
+	string  order_id = 7;
+}
+
+message ChargeResponse {
+	int32 state = 1;
+	string order_id = 2;
+	int64 user_id = 3;
+	int64 order_id_int = 4;
+	int32 status = 5;
+}
+
+message QueryReq {
+	string order_id = 1;
+}
+
+message QueryRsp {
+	int32 state = 1;
+	string order_id = 2;
+	int32 status = 3;
+}

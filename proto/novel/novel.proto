@@ -1,0 +1,239 @@
+syntax = "proto3";
+
+package go.micro.service.novel;
+
+service NovelSrv {
+	rpc SetVipChapter(SetVipChapterReq) returns (Response) {}
+	rpc UpdateNovel(Novel) returns (Response) {}
+	rpc GetNovelList(NovelListReq) returns (NovelListResp) {}
+	rpc DelCategory(DelCategoryReq) returns (CommonResponse) {}
+	rpc UpdateCategory(Category) returns (CommonResponse) {}
+	rpc AddCateGory(AddCateRequest) returns (CommonResponse) {}
+	rpc GetCateGories(Request) returns (CateResponse) {}
+	rpc GetNovelById(Request) returns (NovelResponse) {}
+	rpc GetNovelsByCateId(Request) returns (NovelsResponse) {}
+	rpc GetNovelsByName(Request) returns (NovelsResponse) {}
+	rpc GetChaptersByNovelId(Request) returns (ChaptersResponse) {}
+	rpc GetChapterById(Request) returns (ChapterResponse) {}
+	rpc GetNotes(NoteRequest) returns (NoteResponse) {}
+	rpc JoinNote(Request) returns (NoteResponse) {}
+	rpc DelNote(DelNoteReq) returns (Response) {}
+	rpc GetNoteNum(NoteNumReq) returns (NoteNumRsp) {}
+	rpc GetNovelsByUserId(RequestByUserId) returns (NovelsResponse) {}
+}
+
+message NoteNumReq {
+	int32 user_id = 1;
+}
+
+message NoteNumRsp {
+	int32 num = 1;
+	string msg = 2;
+	int32 code = 3;
+	int32  join_num = 4;
+}
+
+message DelNoteReq {
+	int32 uid = 1;
+	int32 novel_id = 2;
+}
+
+message SetVipChapterReq {
+	int32 novel_id = 1;
+	int32 min_chapter = 2;
+	int32 max_chapter = 3;
+	int32 is_vip = 4;
+}
+
+message NovelListResp {
+	repeated NovelData novels = 1;
+	int32 code = 2;
+	Pagnation pagnation = 3;
+}
+
+message NovelData {
+	int64 id = 1;
+	string name = 2;
+	string author = 3;
+	int64 cate_id = 4;
+	string cate_name = 5;
+	string img = 6;
+	int64 chapter_total = 7;
+	int64 chapter_current = 8;
+	string  create_at = 9;
+	int32 sort = 10;
+}
+
+message NovelListReq {
+	int32 cate_id = 1;
+	string name = 2;
+	string author = 3;
+	int32 page = 6;
+	int32 page_size = 7;
+}
+
+message DelCategoryReq {
+	int32 category_id = 1;
+}
+
+message CommonResponse {
+	string msg = 1;
+	int32 code = 2;
+}
+
+message AddCateRequest {
+	string name = 1;
+	int32 sort = 2;
+	int32 is_show = 3;
+	int32 channel = 4;
+}
+
+message NoteRequest {
+	string name = 1;
+	int32 user_id = 2;
+	int32 is_end = 3;
+	int32 page = 4;
+	int32 size = 5;
+}
+
+message ReadRequest {
+	int32 user_id = 1;
+	int32 novel_id = 2;
+	int32 chapter_num = 3;
+	int32 is_join = 4;
+}
+
+message NoteResponse {
+	int32 code = 1;
+	string msg = 2;
+	repeated Note notes = 3;
+}
+
+message Note {
+	string novel_name = 1;
+	string prev_chapter = 2;
+	string new_chapter = 3;
+	int32  novel_id = 4;
+	int32  prev_num = 5;
+	int32  new_num = 6;
+}
+
+message RequestByUserId{
+	int32 page = 1;
+	int32 size = 2;
+	int32 user_id = 3;
+	int32 classify = 4;
+}
+
+message Request{
+	int32 cate_id = 1;
+	int32 novel_id = 2;
+	int32 chapter_id = 3;
+	int32 page = 4;
+	int32 size = 5;
+	string type = 6;
+	int32  num = 7;
+	string name = 8;
+	int32  words = 9;
+	int32 user_id = 10;
+	int32 is_show = 11;
+	int32 sex = 12; 
+}
+
+message Category{
+	int32 cate_id = 1;
+	string name = 2;
+	int32 sort = 3;
+	int32 channel = 4;
+	int32 is_show = 5;
+}
+
+message Novel{
+	int32 novel_id = 1;
+	string name = 2;
+	string author = 3;
+	int32 chapter_total = 4;
+	int32 chapter_current = 5;
+	string img = 6;
+	string intro = 7;
+	int32 cate_id = 8;
+	int32 words = 9;
+	int32 likes = 10;
+	int32 un_likes = 11;
+	string updated_at = 12;
+	string new_chapter = 13;
+	string category_name = 14;
+	int32 category_id = 15;
+	int32 sort = 16;
+	int32 viewCounts = 17;
+	int32 isCollect = 18;
+	int32  chapter_num = 19;
+}
+
+message NovelResponse{
+	int32 code = 1;
+	string msg = 2;
+	Novel novel = 3;
+}
+
+enum VipType {
+	NO_VIP = 0;
+	IS_VIP = 1;
+}
+
+message Chapter{
+	int32 chapter_id = 1;
+	string title = 2;
+	string content = 3;
+	int32 words = 4;
+	int32 novel_id = 5;
+	VipType is_vip = 6;
+	int32 num = 7;
+}
+
+message ChapterResponse{
+	int32 code = 1;
+	string msg = 2;
+	Chapter chapter = 3;
+}
+
+message ChaptersResponse{
+	int32 code = 1;
+	string msg = 2;
+	repeated Chapter chapters = 3;
+}
+
+message NovelsResponse{
+	int32 code = 1;
+	string msg = 2;
+	repeated Novel novels = 3;
+	int32 total = 4;
+}
+
+message CateResponse{
+	int32 code = 1;
+	string msg = 2;
+	repeated Category categories = 3;
+	Pagnation pagnation = 4;
+}
+
+message Pagnation {
+	int64 page = 1;
+	int64 page_size = 2;
+	int64 total = 3;
+}
+
+message ChapterDetail{
+	string title = 1;
+	string content = 2;
+}
+
+message Response{
+	int32 code = 1;
+	string msg = 2;
+	ChapterDetail data = 3;
+}
+
+message Message {
+	bool flag = 1;
+}

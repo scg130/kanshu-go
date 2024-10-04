@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package go.micro.srv.charge;
+
+service Wallet {
+	rpc Create(WalletReq) returns (WalletResponse) {}
+	rpc Change(WalletReq) returns (WalletResponse) {}
+	rpc GetOne(WalletReq) returns (WalletResponse) {}
+	rpc FindBuyLog(LogRequest) returns (LogResponse) {}
+	rpc BuyChapter(BuyChapterRequest) returns (WalletResponse) {}
+	rpc GetChapter(BuyChapterRequest) returns (LogResponse) {}
+}
+
+message BuyChapterRequest {
+	int64 uid = 1;
+	int64 chapter_id = 2;
+	int64 novel_id = 3;
+	string novel_name = 4;
+	int64 amount = 5;
+}
+
+enum Type {
+	STATE_CHARGE = 0;
+	STATE_BUY_VIP = 1;
+	STATE_BUY_CHAPTER = 2;
+}
+
+message WalletReq {
+	int64 uid = 1;
+	int64 amount = 2;
+	Type type = 3;
+	int64 order_id = 4;
+}
+
+message WalletResponse {
+	int32 state = 1;
+	int64 uid = 2;
+	int64 available_balance = 3;//可用余额
+}
+
+message LogRequest {
+	int64 uid = 1;
+	int32 page = 2;
+	int32 size = 3;
+}
+
+message LogResponse {
+	int32 state = 1;
+	repeated Log log = 2;
+}
+
+message Log {
+	int64 novel_id = 1;
+	string novel_name = 2;
+	int64 amount = 3;
+}

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package go.micro.service.user;
+
+service UserCenter {
+	rpc Login(Request) returns (Response) {}
+	rpc Register(Request) returns (Response) {}
+	rpc Find(Request) returns (Response) {}
+	rpc GetById(Request) returns (Response) {}
+	rpc ResetPasswd(Request) returns(Response){}
+}
+
+message Message {
+	int64 phone = 1;
+}
+
+message Request {
+	int64 phone = 1;
+	string passwd = 2;
+	string passwd_confirm = 3;
+	int64 user_id = 4;
+	string avatar = 5;
+}
+
+message Response {
+	int64 code = 1;
+	string msg = 2;
+	UserInfo data = 3;
+}
+
+message UserInfo {
+	int64 user_id = 1;
+	string avatar = 2;
+	int64 phone = 3;
+}
