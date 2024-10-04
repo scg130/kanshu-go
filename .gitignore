@@ -1,0 +1,8 @@
+.idea
+.git
+
+resource/web
+.vscode
+runapp
+test.go
+docs
