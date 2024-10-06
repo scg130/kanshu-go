@@ -61,50 +61,32 @@ func (c *Novel) GetByUserId(userId, classify, page, size int32) (data []NovelDat
 	return
 }
 
-func (c *Novel) GetByCateId(name string, cateId, page, size, words int, userId int32) (data []NovelData, total int64, err error) {
-	wordCond := ""
-	switch {
-	case words == 0:
-		wordCond = ""
-	case (words <= 3000000):
-		wordCond = "novel.words <= 3000000"
-	case (words > 3000000 && words <= 5000000):
-		wordCond = "novel.words>3000000 and novel.words<=5000000"
-	case (words > 5000000 && words <= 10000000):
-		wordCond = "novel.words>5000000 and novel.words<=10000000"
-	case (words >= 10000001):
-		wordCond = "novel.words>=10000001"
-	}
+func (c *Novel) GetByCateId(name string, cateId, page, size int, userId int32) (data []NovelData, total int64, err error) {
 	nameCond := ""
 	if name != "" {
 		nameCond = "novel.name like \"" + name + "%\""
 	}
-
 	query := x.Table("novel").Join("inner", "chapter", "novel.id = chapter.novel_id and chapter.num = novel.chapter_current").Join("left", "notes", "novel.id = notes.novel_id")
-	if cateId != 0 {
-		query = query.Where("novel.cate_id=?", cateId)
-		if userId > 0 {
-			query = query.Where("(notes.user_id=? or notes.user_id is null)", userId)
-		}
-		total, err = query.And(nameCond).And(wordCond).
-			And("novel.chapter_current>0").
-			Select(
-				"novel.id as id,novel.name as name,novel.author as author,novel.chapter_total as chapter_total,novel.chapter_current as chapter_current,novel.img as img,novel.intro as intro,novel.words as words,min(chapter.title) as new_chapter,novel.updated_at as updated_at,count(distinct notes.user_id) as view_counts,max(notes.is_join) as is_collect",
-			).
-			Limit(size, size*(page-1)).
-			GroupBy("novel.id").
-			OrderBy("novel.sort").
-			FindAndCount(&data)
-	} else {
-		total, err = query.Where("novel.chapter_current>0").
-			And(nameCond).And(wordCond).
-			Select(
-				"novel.id as id,novel.name as name,novel.author as author,novel.chapter_total as chapter_total,novel.chapter_current as chapter_current,novel.img as img,novel.intro as intro,novel.words as words,chapter.title as new_chapter,novel.updated_at as updated_at",
-			).
-			Limit(size, size*(page-1)).
-			OrderBy("novel.sort").
-			FindAndCount(&data)
+
+	if userId > 0 {
+		query = query.Where("(notes.user_id=? or notes.user_id is null)", userId)
 	}
+	orderColumn := "novel.sort asc"
+	if cateId == 4 {
+		orderColumn = "view_counts desc"
+	} else {
+		query = query.Where("novel.cate_id=?", cateId)
+	}
+	total, err = query.And(nameCond).
+		And("novel.chapter_current>0").
+		Select(
+			"novel.id as id,novel.name as name,novel.author as author,novel.chapter_total as chapter_total,novel.chapter_current as chapter_current,novel.img as img,novel.intro as intro,novel.words as words,min(chapter.title) as new_chapter,novel.updated_at as updated_at,count(distinct notes.user_id) as view_counts,max(notes.is_join) as is_collect",
+		).
+		Limit(size, size*(page-1)).
+		GroupBy("novel.id").
+		OrderBy(orderColumn).
+		FindAndCount(&data)
+
 	return
 }
 

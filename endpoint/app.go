@@ -10,6 +10,7 @@ import (
 	"kanshu/env"
 	go_micro_service_novel "kanshu/proto/novel"
 	selfwrappers "kanshu/wrappers"
+	"math"
 	"math/rand"
 	"net/http"
 	"time"
@@ -142,11 +143,14 @@ func (a *App) SelectCourse(ctx *gin.Context) {
 			"isCollect":  v.IsCollect,
 			"wordCount":  v.Words,
 			"category":   v.CategoryName,
+			"intro":      v.Intro,
 		})
 	}
 	ctx.JSON(http.StatusOK, dto.Resp{
-		Code: 0,
-		Msg:  "success",
-		Data: data,
+		Code:  0,
+		Msg:   "success",
+		Data:  data,
+		Pages: gconv.Int32(math.Ceil(gconv.Float64(rsp.Total) / gconv.Float64(limit))),
+		Total: rsp.Total,
 	})
 }
