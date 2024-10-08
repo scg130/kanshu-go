@@ -17,28 +17,28 @@ services:
       hx_net:
         ipv4_address: 172.22.0.2
   
-  web:
-    container_name: etcdv3-browser
-    image: rustyx/etcdv3-browser
-    environment:
-      - ETCD=etcd:2379
-      - EDITABLE=1
-    ports:
-      - 8000:8081
-    restart: always
-    networks:
-      hx_net:
-        ipv4_address: 172.22.0.3
+  # web:
+  #   container_name: etcdv3-browser
+  #   image: rustyx/etcdv3-browser
+  #   environment:
+  #     - ETCD=etcd:2379
+  #     - EDITABLE=1
+  #   ports:
+  #     - 8000:8081
+  #   restart: always
+  #   networks:
+  #     hx_net:
+  #       ipv4_address: 172.22.0.3
 
-  e3w:
-    container_name: e3w
-    hostname: e3w
-    image: soyking/e3w:latest
-    ports:
-      - "2300:8080"
-    networks:
-      hx_net:
-        ipv4_address: 172.22.0.4
+  # e3w:
+  #   container_name: e3w
+  #   hostname: e3w
+  #   image: soyking/e3w:latest
+  #   ports:
+  #     - "2300:8080"
+  #   networks:
+  #     hx_net:
+  #       ipv4_address: 172.22.0.4
 
   jaeger:
     container_name: jaeger
@@ -59,36 +59,37 @@ services:
         ipv4_address: 172.22.0.5
 
   #http://192.168.1.130:7777/hystrix   http://192.168.1.130:81/hystrix.stream  防火墙 81 7777端口打开
-  hystrix:
-    container_name: hystrix
-    image: scg130/hystrix
-    ports:
-      - 7777:9002
-    restart: always
-    networks:
-      hx_net:
-        ipv4_address: 172.22.0.6
+  # hystrix:
+  #   container_name: hystrix
+  #   image: scg130/hystrix
+  #   ports:
+  #     - 7777:9002
+  #   restart: always
+  #   networks:
+  #     hx_net:
+  #       ipv4_address: 172.22.0.6
 
   #  micro-api micro-web 与micro v2 不兼容  需重新构建
-  micro-api:
-    container_name: micro-api
-    image: scg130/micro
-    ports:
-      - "8088:8080"
-    command: --registry=etcd --registry_address=172.22.0.2:2379 --api_namespace=go.micro.api api --handler=api
-    networks:
-      hx_net:
-        ipv4_address: 172.22.0.7
+  # micro-api:
+  #   container_name: micro-api
+  #   image: scg130/micro
+  #   ports:
+  #     - "8088:8080"
+  #   command: --registry=etcd --registry_address=172.22.0.2:2379 --api_namespace=go.micro.api api --handler=api
+  #   networks:
+  #     hx_net:
+  #       ipv4_address: 172.22.0.7
 
-  micro-web:
-    container_name: micro-web
-    image: scg130/micro
-    ports:
-      - "8082:8082"
-    command: --registry=etcd --registry_address=172.22.0.2:2379 --web_namespace=go.micro.web --client=grpc --enable_stats web
-    networks:
-      hx_net:
-        ipv4_address: 172.22.0.8
+  # micro-web:
+  #   container_name: micro-web
+  #   image: scg130/micro
+  #   ports:
+  #     - "8082:8082"
+  #   command: --registry=etcd --registry_address=172.22.0.2:2379 --web_namespace=go.micro.web --client=grpc --enable_stats web
+  #   networks:
+  #     hx_net:
+  #       ipv4_address: 172.22.0.8
+  
   # docker run -itd --name mysql-test -p "3306":"3306" -e MYSQL_ROOT_PASSWORD=123456 mysql
   #  mysql:
   #    container_name: mysql
@@ -154,6 +155,8 @@ services:
       MYSQL_PASSWD: smd013012
       MYSQL_NOVEL_DB: novel
       MYSQL_LOG: "true"
+      DOMAIN: "http://172.18.183.109:2222"
+      FRONT_URL: "http://172.18.183.109:1111"
       PAYPAL_CLIENT_ID: "AUKksEwIifzBH-AvcR0O-aegcC_N3xUWoctlZmrUjO6nWGNpTgZqJJ7ZoGE3Ngy3HnlRZgkWt0ibXm4N"
       PAYPAL_SECRET: "EPg-JoN-qXeIi6oVyjZBI31lGOB_nXmB9N1DYgMMyiRiQySo23VKS-2Gz2qr2EzbrAnTvTTsG2RYSr_i"
       PAYPAL_RETURN_URL: "http://www.556wan.cn/charge/callback/USD"

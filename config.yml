@@ -4,6 +4,8 @@ metadata:
   name: novel-config
   namespace: default
 data:
+  DOMAIN: "http://www.556wan.cn"
+  FRONT_URL: "http://www.556wan.cn"
   JWT_SECRET: "9CvsyDGtiBzYB7SgmnDKZcmYtKFkUdEL"
   ADMIN_JWT_SECRET: "9CvsyDGtiBAYB7SgmSDKZcmYtKFkUdEL"
   MYSQL_HOST: "127.0.0.1"
