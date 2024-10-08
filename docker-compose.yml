@@ -1,9 +1,6 @@
 version: "3.5"
 #ip=`ifconfig | grep 192 | grep -v grep | awk '{print $2}'`
-#TRACER_HOST = ip
-#TRACER_PORT = 6831
 services:
-#  docker run -d --name etcd -e ALLOW_NONE_AUTHENTICATION=yes -e ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379 -p 32379:2379  -p 32380:2380 bitnami/etcd
   etcd:
     container_name: etcd
     image: "bitnami/etcd:latest"
@@ -107,13 +104,13 @@ services:
     image: scg130/kanshu-user
     command: /user-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
@@ -125,13 +122,13 @@ services:
     image: scg130/kanshu-novel
     command: /novel-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
@@ -146,15 +143,15 @@ services:
       - 2222:2222
       - 81:81
     environment:
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
       DOMAIN: ${DOMAIN}
       FRONT_URL: ${FRONT_URL}
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
@@ -175,13 +172,13 @@ services:
     image: scg130/kanshu-admin
     command: /admin-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_ADMIN_DB: admin
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_ADMIN_DB: ${MYSQL_ADMIN_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
@@ -193,13 +190,13 @@ services:
     image: scg130/kanshu-charge
     command: /charge-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
@@ -211,13 +208,13 @@ services:
     image: scg130/kanshu-wallet
     command: /wallet-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
@@ -229,13 +226,13 @@ services:
     image: scg130/kanshu-comment
     command: /comment-service
     environment:
-      MYSQL_HOST: ${IP}
-      MYSQL_PORT: "3306"
-      MYSQL_USER: root
-      MYSQL_PASSWD: smd013012
-      MYSQL_NOVEL_DB: novel
-      MYSQL_LOG: "true"
-      ETCD_HOST: ${IP}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWD: ${MYSQL_PASSWD}
+      MYSQL_NOVEL_DB: ${MYSQL_NOVEL_DB}
+      MYSQL_LOG: ${MYSQL_LOG}
+      ETCD_HOST: ${ETCD_HOST}
       TRACER_HOST: ${TRACER_HOST}
       TRACER_PORT: ${TRACER_PORT}
     networks:
