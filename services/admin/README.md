@@ -53,6 +53,12 @@ Build a docker image
 ```
 make docker
 ```
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=smd013012 -p 3306:3306 -d mysql:latest
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%'  WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+
 INSERT INTO `user` (`phone`,`password`,`updated_at`,`created_at`,`version`) VALUES (?, ?, ?, ?, ?) []interface {}{13711400432, "$2a$10$b1H8LmV7KbYcXhbxvG0W6.cZ8/KNYI6ou.wG2rJktw7qR74t8eQM2", "2024-10-02 02:11:10", "2024-10-02 02:11:10", 1}
 
 insert into role (id,name,menu_ids) VALUES(1,"admin",CONVERT("[]" USING BINARY));

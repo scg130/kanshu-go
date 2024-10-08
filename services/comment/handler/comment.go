@@ -61,7 +61,7 @@ func (c *CommentSrv) GetComments(ctx context.Context, in *comment.CommentsReques
 			Content:   v.Content,
 			Username:  v.Username,
 			Avatar:    v.Avatar,
-			CreatedAt: v.CreateTime.Format(time.DateTime),
+			CreatedAt: v.CreateTime.Format("2006/01/02 15:04:05"),
 			Id:        int32(v.Id),
 			GoodsNum:  v.GoodsNum,
 		})
