@@ -143,7 +143,7 @@ services:
     image: scg130/kanshu-runapp
     command: /micro/runapp
     ports:
-      - 80:8080
+      - 2222:2222
       - 81:81
     environment:
       ETCD_HOST: ${IP}
@@ -155,8 +155,8 @@ services:
       MYSQL_PASSWD: smd013012
       MYSQL_NOVEL_DB: novel
       MYSQL_LOG: "true"
-      DOMAIN: "http://172.18.183.109:2222"
-      FRONT_URL: "http://172.18.183.109:1111"
+      DOMAIN: ${DOMAIN}
+      FRONT_URL: ${FRONT_URL}
       PAYPAL_CLIENT_ID: "AUKksEwIifzBH-AvcR0O-aegcC_N3xUWoctlZmrUjO6nWGNpTgZqJJ7ZoGE3Ngy3HnlRZgkWt0ibXm4N"
       PAYPAL_SECRET: "EPg-JoN-qXeIi6oVyjZBI31lGOB_nXmB9N1DYgMMyiRiQySo23VKS-2Gz2qr2EzbrAnTvTTsG2RYSr_i"
       PAYPAL_RETURN_URL: "http://www.556wan.cn/charge/callback/USD"
