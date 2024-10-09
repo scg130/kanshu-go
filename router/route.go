@@ -1,12 +1,13 @@
 package router
 
 import (
-	swaggerFiles "github.com/swaggo/files"
 	"kanshu/endpoint"
 	"kanshu/endpoint/novel"
 	"kanshu/endpoint/user"
 	"kanshu/middleware"
 	"net/http"
+
+	swaggerFiles "github.com/swaggo/files"
 
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -33,6 +34,9 @@ func prometheusF(r *gin.Engine) {
 
 func HttpRouter() *gin.Engine {
 	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	}, middleware.UserRateLimiter())
 	prometheusF(r)
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 

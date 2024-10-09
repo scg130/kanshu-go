@@ -41,7 +41,12 @@ func UserRateLimiter() gin.HandlerFunc {
 		if !exist {
 			ctx.Abort()
 		}
-		uid := authData.(map[string]interface{})["uid"].(float64)
+		var uid float64
+		if authData != nil {
+			if val, ok := authData.(map[string]interface{})["uid"]; ok {
+				uid = val.(float64)
+			}
+		}
 		uri := ctx.Request.RequestURI
 		key := gconv.String(uid) + ":" + uri
 		limiter := rateLimiter.GtLiitr(key)
