@@ -247,11 +247,15 @@ func (n *NovelSrv) GetNotes(ctx context.Context, req *novel.NoteRequest, rsp *no
 }
 
 func (n *NovelSrv) GetNovelsByCateId(ctx context.Context, req *novel.Request, rsp *novel.NovelsResponse) error {
-	span, _ := opentracing.StartSpanFromContext(ctx, "CheckBalance")
-	defer span.Finish()
+	span := opentracing.SpanFromContext(ctx)
 	span.LogKV("cateID", req.CateId)
+	defer span.Finish()
 
-	// ctx = opentracing.ContextWithSpan(ctx, span1)
+	span1 := opentracing.StartSpan("GetNovelsByCateId", opentracing.ChildOf(span.Context()))
+	span1.LogKV("cateID", req.CateId)
+	defer span1.Finish()
+
+	// ctx = opentracing.ContextWithSpan(ctx, span)
 
 	novs := make([]*novel.Novel, 0)
 	novels, total, err := n.Novel.GetByCateId(ctx, req.Name, int(req.CateId), int(req.Page), int(req.Size_), req.UserId)
