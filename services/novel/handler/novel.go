@@ -247,8 +247,7 @@ func (n *NovelSrv) GetNotes(ctx context.Context, req *novel.NoteRequest, rsp *no
 }
 
 func (n *NovelSrv) GetNovelsByCateId(ctx context.Context, req *novel.Request, rsp *novel.NovelsResponse) error {
-	span := opentracing.SpanFromContext(ctx)
-	fmt.Println(span)
+	span, _ := opentracing.StartSpanFromContext(ctx, "CheckBalance")
 	defer span.Finish()
 	span.LogKV("cateID", req.CateId)
 
