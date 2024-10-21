@@ -5,7 +5,7 @@ MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 .PHONY: build
 build:
 
-	CGO_ENABLED=0 GOOS=linux go build -o wallet-service *.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o wallet-service *.go
 
 .PHONY: test
 test:

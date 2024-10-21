@@ -33,7 +33,7 @@ run:
 .PHONY: build
 build: 
 	#swag init --parseDependency
-	CGO_ENABLED=0 GOOS=linux go build  -o  runapp .
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -o  runapp .
 
 .PHONY: test
 test:

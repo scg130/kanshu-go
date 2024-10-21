@@ -38,6 +38,7 @@ func HttpRouter() *gin.Engine {
 		c.JSON(200, gin.H{"message": "pong"})
 	}, middleware.UserRateLimiter())
 	prometheusF(r)
+	r.Use(middleware.Tracer())
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.Use(middleware.Cors())
