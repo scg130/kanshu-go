@@ -61,6 +61,7 @@ FLUSH PRIVILEGES;
 
 
 
+
 insert into role (id,name,menu_ids) VALUES(1,"admin",CONVERT("[]" USING BINARY));
 
 update `user` set role_ids=CONVERT("[1]" USING BINARY) where id = 1;

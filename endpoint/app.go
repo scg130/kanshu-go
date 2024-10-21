@@ -2,10 +2,6 @@ package endpoint
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/ilylx/gconv"
-	"github.com/scg130/tools"
-	"github.com/scg130/tools/wrappers"
 	"kanshu/dto"
 	"kanshu/env"
 	go_micro_service_novel "kanshu/proto/novel"
@@ -14,6 +10,13 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ilylx/gconv"
+	"github.com/opentracing/opentracing-go"
+	"github.com/scg130/tools"
+	"github.com/scg130/tools/wrappers"
+	"github.com/uber/jaeger-client-go"
 )
 
 type App struct {
@@ -115,8 +118,20 @@ func (a *App) SelectCourse(ctx *gin.Context) {
 	limit := gconv.Int(ctx.Query("limit"))
 	userId := gconv.Int32(ctx.Query("user_id"))
 	title := ctx.Query("title")
+	sp, exist := ctx.Get("span")
+	c := ctx.Request.Context()
+	if exist {
+		span := sp.(opentracing.Span)
+		traceID := span.Context().(jaeger.SpanContext).TraceID()
 
-	rsp, err := a.NovelCli.GetNovelsByCateId(ctx, &go_micro_service_novel.Request{
+		span1 := opentracing.StartSpan("GetNovelsByCateId", opentracing.ChildOf(span.Context()))
+		defer span1.Finish()
+		span1.LogKV("cateID", cate)
+		span1.LogKV("traceID", traceID)
+		c = opentracing.ContextWithSpan(ctx, span1)
+	}
+
+	rsp, err := a.NovelCli.GetNovelsByCateId(c, &go_micro_service_novel.Request{
 		CateId: gconv.Int32(cate),
 		Page:   gconv.Int32(page),
 		Size_:  gconv.Int32(limit),

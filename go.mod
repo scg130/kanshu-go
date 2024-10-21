@@ -15,6 +15,7 @@ require (
 	github.com/ilylx/gconv v0.0.0-20240713143307-cc305f890dcd
 	github.com/joho/godotenv v1.5.1
 	github.com/micro/go-micro/v2 v2.9.1
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/plutov/paypal/v4 v4.11.0
 	github.com/prometheus/client_golang v1.1.0
 	github.com/scg130/tools v0.10.11
@@ -23,6 +24,7 @@ require (
 	github.com/smartwalle/alipay/v3 v3.2.23
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
+	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	xorm.io/xorm v1.3.9
 )
@@ -91,7 +93,6 @@ require (
 	github.com/nats-io/nkeys v0.1.4 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olivere/elastic v6.2.37+incompatible // indirect
-	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
@@ -108,7 +109,6 @@ require (
 	github.com/swaggo/swag v1.8.12 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/xanzy/ssh-agent v0.2.1 // indirect

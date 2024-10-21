@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -61,12 +62,12 @@ func (c *Novel) GetByUserId(userId, classify, page, size int32) (data []NovelDat
 	return
 }
 
-func (c *Novel) GetByCateId(name string, cateId, page, size int, userId int32) (data []NovelData, total int64, err error) {
+func (c *Novel) GetByCateId(ctx context.Context, name string, cateId, page, size int, userId int32) (data []NovelData, total int64, err error) {
 	nameCond := ""
 	if name != "" {
 		nameCond = "novel.name like \"" + name + "%\""
 	}
-	query := x.Table("novel").Join("inner", "chapter", "novel.id = chapter.novel_id and chapter.num = novel.chapter_current").Join("left", "notes", "novel.id = notes.novel_id")
+	query := x.Context(ctx).Table("novel").Join("inner", "chapter", "novel.id = chapter.novel_id and chapter.num = novel.chapter_current").Join("left", "notes", "novel.id = notes.novel_id")
 
 	if userId > 0 {
 		query = query.Where("(notes.user_id=? or notes.user_id is null)", userId)
