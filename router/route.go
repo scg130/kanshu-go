@@ -6,7 +6,9 @@ import (
 	"kanshu/endpoint/user"
 	"kanshu/middleware"
 	"net/http"
+	"time"
 
+	"github.com/opentracing/opentracing-go"
 	swaggerFiles "github.com/swaggo/files"
 
 	"github.com/gin-gonic/gin"
@@ -34,11 +36,20 @@ func prometheusF(r *gin.Engine) {
 
 func HttpRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.Tracer())
 	r.GET("/ping", func(c *gin.Context) {
+		sp, exist := c.Get("span")
+		if exist {
+			span := sp.(opentracing.Span)
+			span1 := opentracing.StartSpan("doing something", opentracing.ChildOf(span.Context()))
+			defer span1.Finish()
+			span1.SetTag("key1", map[string]interface{}{"a": "b"})
+			time.Sleep(time.Second * 1)
+		}
 		c.JSON(200, gin.H{"message": "pong"})
 	}, middleware.UserRateLimiter())
 	prometheusF(r)
-	r.Use(middleware.Tracer())
+
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.Use(middleware.Cors())
