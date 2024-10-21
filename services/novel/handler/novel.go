@@ -8,7 +8,6 @@ import (
 	"novel/repo"
 	"time"
 
-	"github.com/opentracing/opentracing-go"
 	"github.com/scg130/tools/bigcache"
 
 	"github.com/micro/go-micro/v2"
@@ -247,15 +246,9 @@ func (n *NovelSrv) GetNotes(ctx context.Context, req *novel.NoteRequest, rsp *no
 }
 
 func (n *NovelSrv) GetNovelsByCateId(ctx context.Context, req *novel.Request, rsp *novel.NovelsResponse) error {
-	span := opentracing.SpanFromContext(ctx)
-	span.LogKV("cateID", req.CateId)
+	span, ctx := StartSpan(ctx, "GetNovelsByCateId")
+	span.LogKV("req", *req)
 	defer span.Finish()
-
-	span1 := opentracing.StartSpan("GetNovelsByCateId", opentracing.ChildOf(span.Context()))
-	span1.LogKV("cateID", req.CateId)
-	defer span1.Finish()
-
-	// ctx = opentracing.ContextWithSpan(ctx, span)
 
 	novs := make([]*novel.Novel, 0)
 	novels, total, err := n.Novel.GetByCateId(ctx, req.Name, int(req.CateId), int(req.Page), int(req.Size_), req.UserId)

@@ -16,7 +16,6 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/scg130/tools"
 	"github.com/scg130/tools/wrappers"
-	"github.com/uber/jaeger-client-go"
 )
 
 type App struct {
@@ -118,18 +117,12 @@ func (a *App) SelectCourse(ctx *gin.Context) {
 	limit := gconv.Int(ctx.Query("limit"))
 	userId := gconv.Int32(ctx.Query("user_id"))
 	title := ctx.Query("title")
-	sp, exist := ctx.Get("span")
-	c := ctx.Request.Context()
-	if exist {
-		span := sp.(opentracing.Span)
-		traceID := span.Context().(jaeger.SpanContext).TraceID()
 
-		span1 := opentracing.StartSpan("GetNovelsByCateId", opentracing.ChildOf(span.Context()))
-		defer span1.Finish()
-		span1.LogKV("cateID", cate)
-		span1.LogKV("traceID", traceID)
-		c = opentracing.ContextWithSpan(ctx, span1)
-	}
+	span, traceID, c := GetSpanTraceIDAndCtx(ctx)
+
+	span1 := opentracing.StartSpan("do anything", opentracing.ChildOf(span.Context()))
+	defer span1.Finish()
+	span1.LogKV("traceID", traceID)
 
 	rsp, err := a.NovelCli.GetNovelsByCateId(c, &go_micro_service_novel.Request{
 		CateId: gconv.Int32(cate),
