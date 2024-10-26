@@ -16,6 +16,7 @@ require (
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/scg130/tools v0.10.9
+	github.com/sirupsen/logrus v1.4.2
 	google.golang.org/protobuf v1.25.0 // indirect
 	xorm.io/xorm v1.3.9
 )

@@ -38,8 +38,8 @@ func (e *NovelRead) Handle(ctx context.Context, msg *novel.ReadRequest) (err err
 	if note.Id > 0 {
 		return
 	}
-	_, err = e.WalletLog.GetChapterByUserIdAndChapterId(gconv.Int(msg.UserId), gconv.Int(chapter.Id))
-	if chapter.IsVip == gconv.Int(novel.VipType_IS_VIP) && err != nil {
+	wLog, _ := e.WalletLog.GetChapterByUserIdAndChapterId(gconv.Int(msg.UserId), gconv.Int(chapter.Id))
+	if chapter.IsVip == int(novel.VipType_IS_VIP) && wLog.Id == 0 {
 		return
 	}
 	err = e.Note.CreateNote(msg.UserId, msg.NovelId, msg.ChapterNum, msg.IsJoin)

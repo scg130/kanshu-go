@@ -2,13 +2,9 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	novel "novel/proto/novel"
 	"novel/repo"
 	"time"
-
-	"github.com/scg130/tools/bigcache"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
@@ -286,40 +282,31 @@ func (n *NovelSrv) GetNovelsByCateId(ctx context.Context, req *novel.Request, rs
 }
 
 func (n *NovelSrv) GetNovelsByName(ctx context.Context, req *novel.Request, rsp *novel.NovelsResponse) error {
-	novelsKey := fmt.Sprintf("novels:%s:%d:%d", req.Name, int(req.Page), req.Size_)
-	novelsData, err := bigcache.BigCache.Get(novelsKey)
 	novs := make([]*novel.Novel, 0)
+	novels, err := n.Novel.GetByName(req.Name, int(req.Page), int(req.Size_))
 	if err != nil {
-		novels, err := n.Novel.GetByName(req.Name, int(req.Page), int(req.Size_))
-		if err != nil {
-			rsp.Code = -1
-			rsp.Msg = "failure"
-			return err
-		}
-		rsp.Code = 0
-		rsp.Msg = "ok"
-		for _, data := range novels {
-			novs = append(novs, &novel.Novel{
-				NovelId:        int32(data.Id),
-				Name:           data.Name,
-				Author:         data.Author,
-				ChapterTotal:   data.ChapterTotal,
-				ChapterCurrent: data.ChapterCurrent,
-				Img:            data.Img,
-				Intro:          data.Intro,
-				Words:          data.Words,
-				Likes:          int32(data.Likes),
-				UnLikes:        int32(data.UnLikes),
-			})
-		}
-		bytes, _ := json.Marshal(novs)
-		bigcache.BigCache.Set(novelsKey, bytes)
-		rsp.Novels = novs
-		return nil
+		rsp.Code = -1
+		rsp.Msg = "failure"
+		return err
 	}
 	rsp.Code = 0
 	rsp.Msg = "ok"
-	json.Unmarshal(novelsData, &novs)
+	for _, data := range novels {
+		novs = append(novs, &novel.Novel{
+			NovelId:        int32(data.Id),
+			Name:           data.Name,
+			Author:         data.Author,
+			ChapterTotal:   data.ChapterTotal,
+			ChapterCurrent: data.ChapterCurrent,
+			Img:            data.Img,
+			Intro:          data.Intro,
+			Words:          data.Words,
+			Likes:          int32(data.Likes),
+			UnLikes:        int32(data.UnLikes),
+		})
+	}
+	rsp.Code = 0
+	rsp.Msg = "ok"
 	rsp.Novels = novs
 	return nil
 }

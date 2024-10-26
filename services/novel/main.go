@@ -10,15 +10,10 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/scg130/tools"
-	"github.com/scg130/tools/bigcache"
 	"github.com/scg130/tools/handlers"
 
 	novel "novel/proto/novel"
 )
-
-func init() {
-	bigcache.SetupGlobalCache()
-}
 
 const SRV_NAME = "go.kanshu.service.novel"
 
