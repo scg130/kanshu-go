@@ -39,7 +39,9 @@ func main() {
 
 	// Register Struct as Subscriber
 	micro.RegisterSubscriber("novel.read", service.Server(), &subscriber.NovelRead{
-		Note: repo.Notes{},
+		Note:      repo.Notes{},
+		Chapter:   repo.Chapter{},
+		WalletLog: repo.WalletLog{},
 	})
 
 	// Run service

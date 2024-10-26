@@ -263,7 +263,7 @@ func (self *Novel) BuyChapter(ctx *gin.Context) {
 		ChapterId: req.ChapterId,
 		NovelId:   int64(novel.Novel.NovelId),
 		NovelName: novel.Novel.Name,
-		Amount:    100,
+		Amount:    1,
 	})
 	if err != nil || resp.State != 1 {
 		ctx.JSON(http.StatusOK, dto.Resp{
@@ -274,7 +274,7 @@ func (self *Novel) BuyChapter(ctx *gin.Context) {
 	}
 	changeRep, err := self.walletCli.Change(ctx, &go_micro_service_wallet.WalletReq{
 		Uid:    userInfo.UserId,
-		Amount: 100,
+		Amount: 1,
 		Type:   go_micro_service_wallet.Type_STATE_BUY_CHAPTER,
 	})
 	if err != nil || changeRep.State != 1 {

@@ -3,6 +3,7 @@ package subscriber
 import (
 	"context"
 	"fmt"
+	"github.com/ilylx/gconv"
 	"novel/repo"
 
 	log "github.com/micro/go-micro/v2/logger"
@@ -11,12 +12,17 @@ import (
 )
 
 type NovelRead struct {
-	Note repo.Notes
+	Note      repo.Notes
+	Chapter   repo.Chapter
+	WalletLog repo.WalletLog
 }
 
 func (e *NovelRead) Handle(ctx context.Context, msg *novel.ReadRequest) (err error) {
 	log.Info("novel read handler received message: ", msg)
-
+	chapter, err := e.Chapter.GetOne(gconv.Int(msg.NovelId), gconv.Int(msg.ChapterNum))
+	if err != nil {
+		return err
+	}
 	note, err := e.Note.GetNote(msg.UserId, msg.NovelId, msg.ChapterNum)
 	if err != nil {
 		return err
@@ -30,6 +36,10 @@ func (e *NovelRead) Handle(ctx context.Context, msg *novel.ReadRequest) (err err
 		return
 	}
 	if note.Id > 0 {
+		return
+	}
+	_, err = e.WalletLog.GetChapterByUserIdAndChapterId(gconv.Int(msg.UserId), gconv.Int(chapter.Id))
+	if chapter.IsVip == gconv.Int(novel.VipType_IS_VIP) && err != nil {
 		return
 	}
 	err = e.Note.CreateNote(msg.UserId, msg.NovelId, msg.ChapterNum, msg.IsJoin)
