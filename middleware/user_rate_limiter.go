@@ -50,7 +50,7 @@ func UserRateLimiter() gin.HandlerFunc {
 		uri := ctx.Request.RequestURI
 		key := gconv.String(uid) + ":" + uri
 		limiter := rateLimiter.GtLiitr(key)
-		if !limiter.AllowN(time.Now(), 1) {
+		if !limiter.AllowN(time.Now(), 10) {
 			limiter.Wait(ctx)
 		}
 		ctx.Next()

@@ -1,0 +1,13 @@
+#Default Kibana configuration for docker target
+i18n.locale: "zh-CN"
+server.name: kibana
+server.host: "0.0.0.0"
+server.port: 5601
+server.shutdownTimeout: "5s"
+elasticsearch.hosts: ["http://192.168.0.100:9200"]
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+monitoring.ui.container.elasticsearch.enabled: true
+xpack.security.enabled: true
+xpack.security.encryptionKey: "4297f44b13955235245b2497399d7a93"
+elasticsearch.username: "kibana"
+elasticsearch.password: "smd013012"

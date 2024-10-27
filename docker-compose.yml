@@ -39,7 +39,7 @@ services:
 
   jaeger:
     container_name: jaeger
-    image: scg130/jaeger
+    image: jaegertracing/all-in-one:latest
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -51,6 +51,10 @@ services:
       - "14250:14250"
     environment:
       COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+      STORAGE: elasticsearch
+      ES_SERVER_URLS: http://elasticsearch:9200 # http://elastic:smd013012@elasticsearch:9200
+      SPAN_STORAGE_TYPE: elasticsearch
+      ES_TAGS_AS_FIELDS: true
     networks:
       hx_net:
         ipv4_address: 172.22.0.5
@@ -238,6 +242,22 @@ services:
     networks:
       hx_net:
         ipv4_address: 172.22.0.16
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      # - xpack.security.enabled=false # 启用X-Pack安全功能
+      # - ELASTIC_PASSWORD=smd013012  # 账号 elastic
+    # volumes:
+    #   - ./esdata:/usr/share/elasticsearch/data
+    networks:
+      hx_net:
+        ipv4_address: 172.22.0.17
 
 networks:
   hx_net:
