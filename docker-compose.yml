@@ -37,9 +37,10 @@ services:
   #     hx_net:
   #       ipv4_address: 172.22.0.4
 
-  jaeger:
-    container_name: jaeger
-    image: jaegertracing/all-in-one:latest
+  jeager:
+    container_name: jeager
+    # image: jaegertracing/all-in-one:latest
+    image: scg130/jeager
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
