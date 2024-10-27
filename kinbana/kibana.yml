@@ -9,5 +9,5 @@ xpack.monitoring.ui.container.elasticsearch.enabled: true
 monitoring.ui.container.elasticsearch.enabled: true
 xpack.security.enabled: true
 xpack.security.encryptionKey: "4297f44b13955235245b2497399d7a93"
-elasticsearch.username: "kibana"
+elasticsearch.username: "elastic"
 elasticsearch.password: "smd013012"

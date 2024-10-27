@@ -247,15 +247,19 @@ services:
   elasticsearch:
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    privileged: true
+    user: "1000:1000"
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
       - discovery.type=single-node
-      # - xpack.security.enabled=false # 启用X-Pack安全功能
-      # - ELASTIC_PASSWORD=smd013012  # 账号 elastic
-    # volumes:
-    #   - ./esdata:/usr/share/elasticsearch/data
+      - xpack.security.enabled=false # 启用X-Pack安全功能
+      - ELASTIC_PASSWORD=smd013012  # 账号 elastic  
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data # chmod -R 777 es/*
+      - ./eslogs:/usr/share/elasticsearch/logs
     networks:
       hx_net:
         ipv4_address: 172.22.0.17
