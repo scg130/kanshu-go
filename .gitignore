@@ -10,3 +10,5 @@ esdata/
 eslogs/
 .env
 .env.bak
+config.yml
+config.yml.bak
