@@ -6,4 +6,5 @@ resource/web
 runapp
 test.go
 docs
-es/*
+esdata/
+eslogs/
