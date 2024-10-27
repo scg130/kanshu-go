@@ -9,3 +9,4 @@ docs
 esdata/
 eslogs/
 .env
+.env.bak
