@@ -8,3 +8,4 @@ test.go
 docs
 esdata/
 eslogs/
+.env
