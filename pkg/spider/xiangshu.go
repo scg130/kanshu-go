@@ -80,8 +80,8 @@ func xiangshuNovel(url string) {
 	}
 	var novelId, chapterCurent int64
 	if exist {
-		chapterCurent = result["chapter_current"].(int64)
-		novelId = result["id"].(int64)
+		chapterCurent = int64(result["chapter_current"].(int32))
+		novelId = int64(result["id"].(int32))
 	} else {
 		sql = "insert into novel(name,author,img,intro,cate_id) values (?, ?, ?, ?, 5)"
 		insertRes, err := x.Exec(sql, title, author, img, intro)
