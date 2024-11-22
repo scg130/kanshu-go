@@ -438,8 +438,15 @@ spec:
       labels:
         app: micro-runapp
     spec:
+      terminationGracePeriodSeconds: 360  # 设置为 6 分钟（360 秒），确保 preStop 能够完成
       containers:
         - image: scg130/kanshu-runapp
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
           imagePullPolicy: IfNotPresent
           name: micro-runapp
           ports:
@@ -459,6 +466,10 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             timeoutSeconds: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 300"]  # preStop 钩子中延迟 5 分钟（300 秒）  
           # env:
           #  - name: ETCD_HOST
           #    value: "etcd-svc"
