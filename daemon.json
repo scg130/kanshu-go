@@ -1,0 +1,19 @@
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "debug": true,
+  "experimental": false,
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-file": "3",
+    "max-size": "500m"
+  },
+  "proxies": {
+    "http-proxy": "http://127.0.0.1:8118",
+    "https-proxy": "http://127.0.0.1:8118"
+  }
+}
