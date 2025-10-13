@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/axgle/mahonia"
@@ -18,15 +21,22 @@ import (
 	"xorm.io/xorm"
 )
 
-const URL = "http://m.b5200.net/modules/article/waps.php?keyword=%s"
+const URL = "http://m.biquge5200.cc/modules/article/waps.php?keyword=%s"
 
-var lockMap *sync.Map
-var enc mahonia.Decoder
+var (
+	lockMap *sync.Map
+	enc     mahonia.Decoder
+	x       *xorm.Engine
+	client  *http.Client // ✅ 全局 HTTP Client
+)
 
 func init() {
 	enc = mahonia.NewDecoder("gbk")
 	initDB()
 	lockMap = &sync.Map{}
+	client = &http.Client{
+		Timeout: 10 * time.Second, // ✅ 设置全局超时
+	}
 }
 
 func Run(pyName, zhName string) error {
@@ -37,10 +47,9 @@ func Run(pyName, zhName string) error {
 	}
 	lockMap.Store(key, 1)
 	defer lockMap.Delete(key)
-	err := Xiangshu(zhName)
+	err := find(zhName)
 	if err != nil {
 		logrus.Error(err)
-		// find(zhName)
 		return err
 	}
 	return nil
@@ -48,22 +57,31 @@ func Run(pyName, zhName string) error {
 
 func find(name string) error {
 	names := strings.Split(name, "|")
-	url := fmt.Sprintf(URL, names[0])
-	res, err := http.Get(url)
+	encodedKeyword := url.QueryEscape(names[0])
+	url := fmt.Sprintf(URL, encodedKeyword)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", randomUA())
+	req.Header.Set("Referer", "http://m.biquge5200.cc/")
+
+	res, err := client.Do(req)
 	if err != nil {
-		logrus.Error(err)
+		log.Printf("请求失败: %v", err)
 		return err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
-		logrus.Error("request fail 1")
+		logrus.Errorf("请求失败，状态码: %d", res.StatusCode)
 		return errors.New("fail")
 	}
-	defer res.Body.Close()
+
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+
 	flag := true
 	doc.Find(".cover").Find("p").Each(func(i int, s *goquery.Selection) {
 		author := enc.ConvertString(s.Find("a").Last().Text())
@@ -71,7 +89,7 @@ func find(name string) error {
 		detailUrl, _ := s.Find(".blue").Attr("href")
 		if author == names[1] && novelName == names[0] {
 			flag = false
-			novel(fmt.Sprintf("http://m.b5200.net%s", detailUrl), author)
+			novel(fmt.Sprintf("http://m.abcbiquge.com%s", detailUrl), author)
 		}
 	})
 	if flag {
@@ -81,26 +99,32 @@ func find(name string) error {
 }
 
 func novel(url string, author string) error {
-	res, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", randomUA())
+	res, err := client.Do(req) // ✅ 替换 http.Get
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
-		logrus.Error("request fail 1")
+		logrus.Errorf("请求失败 novel 状态码: %d", res.StatusCode)
 		return errors.New("fail")
 	}
-	defer res.Body.Close()
+
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+
 	img, _ := doc.Find(".block_img2").Find("img").Attr("src")
 	title, _ := doc.Find("#block_txt2").Find("h2").Find("a").Html()
 	title = enc.ConvertString(title)
-	intro, _ := doc.Find("#info").Html()
+	intro, _ := doc.Find("#intro_info").Html()
 	intro = util.CutChineseString(intro, 40)
+
 	sql := "select * from novel.novel where name = ?"
 	result := make(map[string]interface{})
 	exist, err := x.Table("novel.novel").Where("name = ?", title).Get(&result)
@@ -108,6 +132,7 @@ func novel(url string, author string) error {
 		logrus.Error(err)
 		return err
 	}
+
 	var novelId, chapterCurent int64
 	if exist {
 		chapterCurent = result["chapter_current"].(int64)
@@ -121,76 +146,85 @@ func novel(url string, author string) error {
 	}
 
 	listUrl, _ := doc.Find(".ablum_read").First().Find("span").Last().Find("a").Attr("href")
-	url1 := "http://m.b5200.net" + listUrl[:len(listUrl)-1] + "_1/"
-	res, err = http.Get(url1)
+	url1 := "http://m.abcbiquge.com" + listUrl[:len(listUrl)-1] + "_1/"
+
+	req, _ = http.NewRequest("GET", url1, nil)
+	req.Header.Set("User-Agent", randomUA())
+	res, err = client.Do(req) // ✅ 替换 http.Get
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
-		logrus.Error("request fail 1")
+		logrus.Error("request fail 3333")
 		return errors.New("fail")
 	}
-	defer res.Body.Close()
 
 	doc, err = goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+
 	page := enc.ConvertString(doc.Find(".page").Last().Text())
 	pages, _ := strconv.Atoi(page[strings.Index(page, "/")+1 : strings.Index(page, ")")-3])
 
 	for i := 1; i <= pages; i++ {
-		chaptersUrl := fmt.Sprintf("http://m.b5200.net"+listUrl[:len(listUrl)-1]+"_%d/", i)
+		chaptersUrl := fmt.Sprintf("http://m.abcbiquge.com/"+listUrl[:len(listUrl)-1]+"_%d/", i)
 		chapters(chaptersUrl, chapterCurent, novelId, i)
 	}
 	return nil
 }
 
 func chapters(url string, chapterCurent int64, novelId int64, page int) error {
-	res, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", randomUA())
+	res, err := client.Do(req) // ✅ 替换 http.Get
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
-		logrus.Error("request fail 1")
+		logrus.Error("request fail 5555")
 		return errors.New("fail")
 	}
-	defer res.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
+
 	doc.Find(".chapter").Find("li").Each(func(i int, s *goquery.Selection) {
 		if i+(20*page-1) < int(chapterCurent) {
 			return
 		}
-
 		href, _ := s.Find("a").Attr("href")
-		chapter(fmt.Sprintf("http://m.b5200.net%s", href), enc.ConvertString(s.Text()), i, int(novelId))
+		chapter(fmt.Sprintf("http://m.abcbiquge.com%s", href), enc.ConvertString(s.Text()), i, int(novelId))
 	})
 	return nil
 }
 
 func chapter(url, title string, num, novelId int) {
-	fmt.Println(url)
-	rsp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", randomUA())
+	res, err := client.Do(req) // ✅ 替换 http.Get
 	if err != nil {
 		logrus.Error(err)
 		return
 	}
+	defer res.Body.Close()
 
-	defer rsp.Body.Close()
-	if rsp.StatusCode != 200 {
-		logrus.Error("request fail chapter")
+	if res.StatusCode != 200 {
+		logrus.Error("request fail chapter 6666")
 		return
 	}
 
-	doc, err := goquery.NewDocumentFromReader(rsp.Body)
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		logrus.Error(err)
 		return
@@ -215,6 +249,15 @@ func chapter(url, title string, num, novelId int) {
 	}
 }
 
+func randomUA() string {
+	uaList := []string{
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36",
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+		"Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+	}
+	return uaList[rand.Intn(len(uaList))]
+}
+
 // const (
 // 	user = "root"
 // 	pass = "smd123456"
@@ -223,8 +266,6 @@ func chapter(url, title string, num, novelId int) {
 // 	// host = "60.205.191.37"
 // 	host = "127.0.0.1"
 // )
-
-var x *xorm.Engine
 
 func initDB() {
 	host := os.Getenv("MYSQL_HOST")
