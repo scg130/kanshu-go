@@ -47,7 +47,7 @@ func Run(pyName, zhName string) error {
 	}
 	lockMap.Store(key, 1)
 	defer lockMap.Delete(key)
-	err := find(zhName)
+	err := Xiangshu(zhName)
 	if err != nil {
 		logrus.Error(err)
 		return err
@@ -268,12 +268,12 @@ func randomUA() string {
 // )
 
 func initDB() {
-	host := os.Getenv("MYSQL_HOST")
-	user := os.Getenv("MYSQL_USER")
-	pass := os.Getenv("MYSQL_PASSWD")
-	db := os.Getenv("MYSQL_NOVEL_DB")
-	mysql_log := os.Getenv("MYSQL_LOG") == "true"
-	port := os.Getenv("MYSQL_PORT")
+	host := GetEnv("MYSQL_HOST","127.0.0.1")
+	user := GetEnv("MYSQL_USER","root")
+	pass := GetEnv("MYSQL_PASSWD","smd013012")
+	db := GetEnv("MYSQL_NOVEL_DB","novel")
+	mysql_log := GetEnv("MYSQL_LOG","true") == "true"
+	port := GetEnv("MYSQL_PORT","3306")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8", user, pass, host, port, db)
 	var err error
@@ -289,4 +289,11 @@ func initDB() {
 	x.SetMaxIdleConns(5)
 
 	x.SetMaxOpenConns(5)
+}
+
+func GetEnv(key, defaultValue string) string {
+    if value := os.Getenv(key); value != "" {
+        return value
+    }
+    return defaultValue
 }

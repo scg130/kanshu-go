@@ -7,43 +7,71 @@ import (
 	"kanshu/util"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
+	"net/url"
+	"io"
+	"encoding/json"
+	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 )
+type Book struct {
+	URLList     string `json:"url_list"`
+	URLImg      string `json:"url_img"`
+	ArticleName string `json:"articlename"`
+	Author      string `json:"author"`
+	Intro       string `json:"intro"`
+}
 
 func Xiangshu(novelName string) error {
 	names := strings.Split(novelName, "|")
-	url := "https://www.xbiquge.la/modules/article/waps.php?" + "searchkey=" + names[0]
-	res, err := http.Post(url, "application/x-www-form-urlencoded", nil)
+	URL := "https://www.53122c.cfd/user/search.html?q=%s&so=undefined"
+	encodedKeyword := url.QueryEscape(names[0])
+	URL = fmt.Sprintf(URL, encodedKeyword)
+	req, _ := http.NewRequest("GET", URL, nil)
+	req.Header.Set("User-Agent", randomUA())
+	res, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	if res.StatusCode != 200 {
-		log.Println("request failed")
-		return errors.New("request failed")
+		log.Println("request failed1111")
+		return errors.New("request failed1111")
 	}
 	defer res.Body.Close()
-	doc, err := goquery.NewDocumentFromReader(res.Body)
+
+	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		log.Println("read body failed:", err)
+		return err
+	}
+	var books []Book
+	err = json.Unmarshal(bodyBytes, &books)
+	if err != nil {
+		log.Println("解析 JSON 失败:", err)
 		return err
 	}
 	flag := true
-	doc.Find(".grid").Find("tr").Each(func(i int, s *goquery.Selection) {
-		detailUrl, _ := s.Find(".even").Find("a").Attr("href")
-		name := s.Find(".even").Find("a").Text()
+	// 遍历打印
+	for _, book := range books {
+		detailUrl := "https://www.53122c.cfd" + book.URLList
+		name := book.ArticleName
+		author := book.Author
+		author = strings.Trim(author,"作者：")
 		if name != names[0] {
-			return
+			continue
+		}
+		if len(names) == 2 && author != names[1] {
+			continue
 		}
 		flag = false
 		xiangshuNovel(detailUrl)
-	})
+	}
+
 	if flag {
 		return errors.New("not found")
 	}
@@ -66,10 +94,10 @@ func xiangshuNovel(url string) {
 		logrus.Error(err)
 		return
 	}
-	img, _ := doc.Find("#fmimg").Find("img").Attr("src")
-	title, _ := doc.Find("#info").Find("h1").Html()
-	author, _ := doc.Find("#info").Find("p").First().Html()
-	intro, _ := doc.Find("#intro").Find("p").Last().Html()
+	img, _ := doc.Find(".book").Find("cover").Attr("src")
+	title, _ := doc.Find(".book").Find("h1").Html()
+	author, _ := doc.Find(".book").Find("small").Find("span").First().Html()
+	intro := doc.Find(".book").Find(".intro").Find("dd").Last().Text()
 	intro = util.CutChineseString(intro, 40)
 	sql := "select * from novel.novel where name = ?"
 	result := make(map[string]interface{})
@@ -89,16 +117,22 @@ func xiangshuNovel(url string) {
 			novelId, _ = insertRes.LastInsertId()
 		}
 	}
-	doc.Find("#list").Find("dd").Each(func(i int, s *goquery.Selection) {
+	doc.Find(".listmain").Find("dd").Each(func(i int, s *goquery.Selection) {
 		if i < int(chapterCurent) {
 			return
 		}
 		chapterTitle := s.Find("a").Text()
 		href, _ := s.Find("a").Attr("href")
-		href = "https://www.ibiquge.la" + href
+		href = "https://www.53122c.cfd" + href
+
+
 		xiangshuChapter(href, chapterTitle, i, int(novelId))
 	})
 }
+
+var (
+	replaceContext1 = `请收藏本站：https://www.53122c.cfd。笔趣阁手机版：https://m.53122c.cfd <br/><br/>`
+)
 
 func xiangshuChapter(url, title string, num, novelId int) {
 	var i = 0
@@ -106,7 +140,6 @@ loop:
 	if i >= 3 {
 		return
 	}
-	fmt.Println(url)
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
@@ -140,9 +173,11 @@ loop:
 		logrus.Error(err)
 		goto loop
 	}
-	content, _ := doc.Find("#content").Html()
-	bytes := regexp.MustCompile("<p><a.*</p>").ReplaceAll([]byte(content), []byte(""))
-	content = string(bytes)
+	content, _ := doc.Find("#chaptercontent").Html()
+	content = strings.ReplaceAll(content, replaceContext1, "")
+	re := regexp.MustCompile(`<p class="readinline">.*?</p>`)
+
+    content = re.ReplaceAllString(content, "")
 	if len(content) < 1000 {
 		return
 	}
