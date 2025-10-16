@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"kanshu/util"
 	"log"
 	"net/http"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"io"
 	"encoding/json"
 	"regexp"
+	"os"
 
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/go-sql-driver/mysql"
@@ -50,7 +50,6 @@ func Xiangshu(novelName string) error {
 		log.Println("read body failed:", err)
 		return err
 	}
-	fmt.Println(string(bodyBytes))
 	var books []Book
 	err = json.Unmarshal(bodyBytes, &books)
 	if err != nil {
@@ -71,7 +70,7 @@ func Xiangshu(novelName string) error {
 			continue
 		}
 		flag = false
-		xiangshuNovel(detailUrl)
+		xiangshuNovel(detailUrl,book)
 	}
 
 	if flag {
@@ -80,7 +79,7 @@ func Xiangshu(novelName string) error {
 	return nil
 }
 
-func xiangshuNovel(url string) {
+func xiangshuNovel(url string,book Book) {
 	res, err := http.Get(url)
 	if err != nil {
 		logrus.Error(err)
@@ -96,11 +95,11 @@ func xiangshuNovel(url string) {
 		logrus.Error(err)
 		return
 	}
-	img, _ := doc.Find(".book").Find("cover").Attr("src")
-	title, _ := doc.Find(".book").Find("h1").Html()
-	author, _ := doc.Find(".book").Find("small").Find("span").First().Html()
-	intro := doc.Find(".book").Find(".intro").Find("dd").Last().Text()
-	intro = util.CutChineseString(intro, 40)
+	img := book.URLImg
+	title := book.ArticleName
+	author := book.Author
+	intro := book.Intro
+
 	sql := "select * from novel.novel where name = ?"
 	result := make(map[string]interface{})
 	exist, err := x.Table("novel.novel").Where("name = ?", title).Get(&result)
