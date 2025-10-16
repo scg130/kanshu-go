@@ -28,7 +28,7 @@ type Book struct {
 
 func Xiangshu(novelName string) error {
 	names := strings.Split(novelName, "|")
-	URL := "https://www.53122c.cfd/user/search.html?q=%s&so=undefined"
+	URL := "https://www.53122c.cfd/user/search.html?q=%s"
 	encodedKeyword := url.QueryEscape(names[0])
 	URL = fmt.Sprintf(URL, encodedKeyword)
 	req, _ := http.NewRequest("GET", URL, nil)
