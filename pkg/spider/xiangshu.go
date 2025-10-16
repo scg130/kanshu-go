@@ -31,6 +31,7 @@ func Xiangshu(novelName string) error {
 	URL := "https://www.53122c.cfd/user/search.html?q=%s"
 	encodedKeyword := url.QueryEscape(names[0])
 	URL = fmt.Sprintf(URL, encodedKeyword)
+	fmt.Println(URL)
 	req, _ := http.NewRequest("GET", URL, nil)
 	req.Header.Set("User-Agent", randomUA())
 	res, err := client.Do(req)
