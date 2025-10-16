@@ -50,6 +50,7 @@ func Xiangshu(novelName string) error {
 		log.Println("read body failed:", err)
 		return err
 	}
+	fmt.Println(string(bodyBytes))
 	var books []Book
 	err = json.Unmarshal(bodyBytes, &books)
 	if err != nil {
