@@ -12,7 +12,7 @@ import (
 	"io"
 	"encoding/json"
 	"regexp"
-	"os"
+
 
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/go-sql-driver/mysql"
