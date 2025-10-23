@@ -72,11 +72,10 @@ func (c *Novel) GetByCateId(ctx context.Context, name string, cateId, page, size
 	if userId > 0 {
 		query = query.Where("(notes.user_id=? or notes.user_id is null)", userId)
 	}
+	query = query.Where("novel.cate_id=?", cateId)
 	orderColumn := "novel.sort asc"
 	if cateId == 4 {
 		orderColumn = "view_counts desc"
-	} else {
-		query = query.Where("novel.cate_id=?", cateId)
 	}
 	total, err = query.And(nameCond).
 		And("novel.chapter_current>0").
