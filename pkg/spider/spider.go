@@ -47,7 +47,7 @@ func Run(pyName, zhName string) error {
 	}
 	lockMap.Store(key, 1)
 	defer lockMap.Delete(key)
-	err := Xiangshu(zhName)
+	err := JiuShuYuan(zhName)
 	if err != nil {
 		logrus.Error(err)
 		return err
