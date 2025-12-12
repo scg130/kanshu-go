@@ -4,8 +4,6 @@
 resource/web
 .vscode
 runapp
-test.go
-test.go.bak
 docs
 esdata/
 eslogs/
